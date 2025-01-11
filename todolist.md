@@ -4,5 +4,5 @@
     -   [ ] _Systeme modulaire feature ?_
 -   [ ] Bonus Élimination par couleurs adjacentes
 -   [ ] Bonus Sauvegarde des paramètres
--   [ ] Bonus Polyominos de taille ≤ n
+-   [~] Bonus Polyominos de taille ≤ n
 -   [ ] Faire le rapport
