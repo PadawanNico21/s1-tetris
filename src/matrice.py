@@ -85,3 +85,10 @@ def cloner_matrice(matrice):
         matrice_indep.append(list(ligne))
 
     return matrice_indep
+
+
+def creer_matrice(lignes, colonnes, valeur):
+    matrice = []
+    for _ in range(lignes):
+        matrice.append([valeur] * colonnes)
+    return matrice
