@@ -6,6 +6,7 @@ import random
 import constantes
 import modeles
 import piece
+import matrice
 
 
 def calculer_score_ajout(nb_lignes):
@@ -83,6 +84,139 @@ def injecter_choisir_piece(formes):
         return choisir_piece(formes)
 
     return choisir_piece_sans_arg
+
+
+def id_piece_meme_couleur(piece, id_piece, pieces):
+    autre_piece = modeles.chercher_piece_par_id(pieces, id_piece)
+    return autre_piece != None and modeles.couleur_piece(
+        piece
+    ) == modeles.couleur_piece(autre_piece)
+
+
+def detection_couleur_adjacente(jeu, piece, pieces):
+    x, y = modeles.position_piece(piece)
+    forme = modeles.forme_piece(piece)
+    a_fusionner = {}
+    for i in range(len(forme)):
+        for j in range(len(forme[0])):
+            if not forme[i][j]:
+                continue
+            if (i <= 0 or not forme[i - 1][j]) and i + y > 0:
+                id_piece_touche = jeu[y + i - 1][x + j]
+                if id_piece_touche != -1 and id_piece_meme_couleur(
+                    piece, id_piece_touche, pieces
+                ):
+                    if id_piece_touche not in a_fusionner:
+                        a_fusionner[id_piece_touche] = 0
+                    a_fusionner[id_piece_touche] += 1
+            if (i >= len(forme) - 1 or not forme[i + 1][j]) and i + y < len(jeu) - 1:
+                id_piece_touche = jeu[y + i + 1][x + j]
+                if id_piece_touche != -1 and id_piece_meme_couleur(
+                    piece, id_piece_touche, pieces
+                ):
+                    if id_piece_touche not in a_fusionner:
+                        a_fusionner[id_piece_touche] = 0
+                    a_fusionner[id_piece_touche] += 1
+            if (j <= 0 or not forme[i][j - 1]) and j + x > 0:
+                id_piece_touche = jeu[y + i][x + j - 1]
+                if id_piece_touche != -1 and id_piece_meme_couleur(
+                    piece, id_piece_touche, pieces
+                ):
+                    if id_piece_touche not in a_fusionner:
+                        a_fusionner[id_piece_touche] = 0
+                    a_fusionner[id_piece_touche] += 1
+            if (j >= len(forme[0]) - 1 or not forme[i][j + 1]) and j + x < len(
+                jeu[0]
+            ) - 1:
+                id_piece_touche = jeu[y + i][x + j + 1]
+                if id_piece_touche != -1 and id_piece_meme_couleur(
+                    piece, id_piece_touche, pieces
+                ):
+                    if id_piece_touche not in a_fusionner:
+                        a_fusionner[id_piece_touche] = 0
+                    a_fusionner[id_piece_touche] += 1
+    return a_fusionner
+
+
+def fusion_pieces_par_couleur(jeu, pieces, piece_active):
+    suppressions = set()
+
+    for p in pieces:
+        if p == piece_active:
+            continue
+        a_fusionner = detection_couleur_adjacente(jeu, p, pieces)
+
+        # On trie par ordre de priorité: plus 2 pièces se touchent plus on va les process en premier
+        ordre = sorted(a_fusionner.items(), key=lambda p: p[1])
+        for id_fusion, cote_touche in ordre:
+            if id_fusion == modeles.identifier(piece_active):
+                continue
+            if cote_touche >= 2:
+                suppressions.add(pieces.index(p))
+                suppressions.add(
+                    pieces.index(modeles.chercher_piece_par_id(pieces, id_fusion))
+                )
+                continue
+            piece_a = p
+            piece_b = modeles.chercher_piece_par_id(pieces, id_fusion)
+            nouvelle_piece = fusionner_piece(piece_a, piece_b)
+            pieces.pop(pieces.index(piece_a))
+            pieces.pop(pieces.index(piece_b))
+            pieces.append(nouvelle_piece)
+    # On réalise les suppressions a la fin car il y'a des cas ou une pièce peut toucher sur 2 côtés deux pièces de même couleur en même temps
+    nouvelle_pieces = []
+    blocks_supprimes = 0
+    for i in range(len(pieces)):
+        if i in suppressions:
+            forme = modeles.forme_piece(pieces[i])
+            blocks_supprimes += sum([sum(ligne) for ligne in forme])
+            continue
+        nouvelle_pieces.append(pieces[i])
+    pieces[:] = nouvelle_pieces
+
+    plateau = modeles.creer_plateau_jeu(len(jeu), len(jeu[0]))
+    for p in pieces:
+        piece.deplacer_piece(plateau, p, modeles.creer_vecteur(0, 0))
+    jeu[:] = plateau
+    return blocks_supprimes
+
+
+def fusionner_piece(piece_a, piece_b):
+    forme_a = modeles.forme_piece(piece_a)
+    x_a, y_a = modeles.position_piece(piece_a)
+    forme_b = modeles.forme_piece(piece_b)
+    x_b, y_b = modeles.position_piece(piece_b)
+    nouvelle_position = (min(x_a, x_b), min(y_a, y_b))
+
+    pos_fin_x_a = len(forme_a[0]) + x_a
+    pos_fin_y_a = len(forme_a) + y_a
+
+    pos_fin_x_b = len(forme_b[0]) + x_b
+    pos_fin_y_b = len(forme_b) + y_b
+
+    pos_fin_x = max(pos_fin_x_a, pos_fin_x_b)
+    pos_fin_y = max(pos_fin_y_a, pos_fin_y_b)
+
+    largeur_matrice = pos_fin_x - nouvelle_position[0]
+    hauteur_matrice = pos_fin_y - nouvelle_position[1]
+
+    nouvelle_forme = matrice.creer_matrice(hauteur_matrice, largeur_matrice, 0)
+
+    for i in range(len(forme_a)):
+        for j in range(len(forme_a[0])):
+            nouvelle_forme[i + y_a - nouvelle_position[1]][
+                j + x_a - nouvelle_position[0]
+            ] |= forme_a[i][j]
+    for i in range(len(forme_b)):
+        for j in range(len(forme_b[0])):
+            nouvelle_forme[i + y_b - nouvelle_position[1]][
+                j + x_b - nouvelle_position[0]
+            ] |= forme_b[i][j]
+
+    nouvelle_piece = modeles.creer_piece(nouvelle_forme, modeles.couleur_piece(piece_a))
+    position = modeles.position_piece(nouvelle_piece)
+    modeles.modifier_vecteur(position, nouvelle_position[0], nouvelle_position[1])
+    return nouvelle_piece
 
 
 # Partie debug

@@ -181,6 +181,16 @@ def arriere_plan():
     fltk.rectangle(0, 0, largeur, hauteur, "black", "black")
 
 
+def mode_couleur_adjacente(etat):
+    if modeles.mode_couleur_adjacente_actif(etat):
+        suppressions = jeu.fusion_pieces_par_couleur(
+            modeles.obtenir_plateau_jeu(etat),
+            modeles.pieces_sur_jeu(etat),
+            modeles.obtenir_piece_active(etat),
+        )
+        modeles.ajouter_score_a_partir_de_suppressions_blocks(etat, suppressions)
+
+
 def jeu_solo(formes, etats):
     """
     La logique du jeu pour 1 joueur
@@ -206,6 +216,7 @@ def jeu_solo(formes, etats):
         if time.time() - temps > delais:
             temps = time.time()
             gravite_joueur(etat, choisir_piece)
+            mode_couleur_adjacente(etat)
 
         if modeles.peut_faire_action(etat):
             deplacements_horizontaux_joueur(
@@ -273,9 +284,12 @@ def jeu_duo(formes, etats):
         if time.time() - temps_j1 > delais_j1:
             temps_j1 = time.time()
             gravite_joueur(etat_j1, choisir_piece)
+            mode_couleur_adjacente(etat_j1)
+
         if time.time() - temps_j2 > delais_j2:
             temps_j2 = time.time()
             gravite_joueur(etat_j2, choisir_piece)
+            mode_couleur_adjacente(etat_j2)
 
         if modeles.peut_faire_action(etat_j1):
             deplacements_horizontaux_joueur(

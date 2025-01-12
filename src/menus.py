@@ -52,7 +52,7 @@ def menu_principal(formes, jeu_solo, jeu_duo):
     """
     Affiche le menu principal
     """
-    fltk.cree_fenetre(1000, 720)
+    fltk.cree_fenetre(1000, 720, redimension=True)
 
     while True:
         largeur = fltk.largeur_fenetre()

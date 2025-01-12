@@ -144,6 +144,7 @@ def creer_etat_jeu(plateau, generateur_piece):
     `6` -> Difficulte
     `7` -> Niveau
     `8` -> Progression Niveau
+    `9` -> Bonus / Variantes activables
 
     """
     piece_active = generateur_piece()
@@ -152,7 +153,7 @@ def creer_etat_jeu(plateau, generateur_piece):
     largeur = len(plateau[0]) // 2 - len(forme[0]) // 2
     position_piece(piece_active)[0] = largeur
 
-    return [0, plateau, piece_active, generateur_piece(), [piece_active], 0, 0, 0, 0]
+    return [0, plateau, piece_active, generateur_piece(), [piece_active], 0, 0, 0, 0, 0]
 
 
 def mise_a_jour_action(etat_jeu):
@@ -214,6 +215,10 @@ def obtenir_score(etat_jeu):
     Renvoie le score
     """
     return etat_jeu[5]
+
+
+def ajouter_score_a_partir_de_suppressions_blocks(etat_jeu, suppressions):
+    etat_jeu[5] += suppressions * 10
 
 
 def ajout_score_a_partir_de_nb_ligne(etat_jeu, nb_lignes):
@@ -280,6 +285,18 @@ def reset_progression_niveau(etat_jeu):
     etat_jeu[8] = 0
 
 
+def activer_mode_couleur_adjacente(etat_jeu):
+    etat_jeu[9] |= 1
+
+
+def desactiver_mode_couleur_adjacente(etat_jeu):
+    etat_jeu[9] &= ~1
+
+
+def mode_couleur_adjacente_actif(etat_jeu):
+    return etat_jeu[9] & 1
+
+
 def cloner_etat(etat):
     """
     Clone l'état du jeu
@@ -295,6 +312,7 @@ def cloner_etat(etat):
         etat[6],
         etat[7],
         etat[8],
+        etat[9],
     ]
 
 
