@@ -7,10 +7,16 @@ import piece
 
 
 def generer_positions(taille):
+    """
+    Genère les set de positions de toutes les pièces de taille taille
+    """
     return generer_positions_rec(taille, set([(0, 0)]))
 
 
 def generer_positions_rec(taille, piece):
+    """
+    Genère les set de positions de toutes les pièces de taille taille
+    """
     if len(piece) >= taille:
         return set([frozenset(piece)])
     pieces = set()
@@ -39,6 +45,9 @@ def generer_positions_rec(taille, piece):
 
 
 def positions_vers_formes(positions):
+    """
+    Convertis le set de positions
+    """
     max_x = max(positions, key=lambda t: t[0])[0]
     max_y = max(positions, key=lambda t: t[1])[1]
 
@@ -56,15 +65,19 @@ def positions_vers_formes(positions):
 
 
 def generer_polynominos(taille):
-    polynomionos = set()
+    """
+    Génère les polynominos de taille <= taille
+    """
+    polynominos_toute_rotation = set()
     for i in range(1, taille + 1):
         positions = generer_positions(i)
         for position in positions:
-            polynomionos.add(positions_vers_formes(position))
-    return polynomionos
+            polynominos_toute_rotation.add(positions_vers_formes(position))
+    polynominos = []
+    for poly in polynominos_toute_rotation:
+        forme = list(poly)[0]
+        forme_mut = [list(ligne) for ligne in forme]
+        matrice.rendre_matrice_carree(forme_mut, max(len(forme_mut), len(forme_mut[0])))
 
-
-n = 10
-print("Polynominos unique de taille <=", n)
-for formes in generer_polynominos(n):
-    piece.affiche_forme_debug(list(formes)[0], affiche_espaces=True)
+        polynominos.append(forme_mut)
+    return polynominos

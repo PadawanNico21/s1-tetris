@@ -155,13 +155,10 @@ def forme_init():
     """
     if fichier_existe(constantes.FICHIER_PIECE):
         formes = extraire_pieces(lire_fichier(constantes.FICHIER_PIECE))
-        afficher_pieces_disponibles(formes, constantes.COULEURS_TERMINAL)
 
         return formes
 
     contenu = generer_contenu_fichier_forme(constantes.FORMES_BASE)
     ecrire_fichier(constantes.FICHIER_PIECE, contenu)
-
-    afficher_pieces_disponibles(constantes.FORMES_BASE, constantes.COULEURS_TERMINAL)
 
     return constantes.FORMES_BASE

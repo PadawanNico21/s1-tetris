@@ -88,6 +88,9 @@ def cloner_matrice(matrice):
 
 
 def creer_matrice(lignes, colonnes, valeur):
+    """
+    Créer une matrice de dimension lignes et colonnes
+    """
     matrice = []
     for _ in range(lignes):
         matrice.append([valeur] * colonnes)

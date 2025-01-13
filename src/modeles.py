@@ -286,14 +286,23 @@ def reset_progression_niveau(etat_jeu):
 
 
 def activer_mode_couleur_adjacente(etat_jeu):
+    """
+    Active le mode couleur adjacente
+    """
     etat_jeu[9] |= 1
 
 
 def desactiver_mode_couleur_adjacente(etat_jeu):
+    """
+    Desactive le mode couleur adjacente
+    """
     etat_jeu[9] &= ~1
 
 
 def mode_couleur_adjacente_actif(etat_jeu):
+    """
+    Renvoie True si le mode couleur adjacente est actif
+    """
     return etat_jeu[9] & 1
 
 

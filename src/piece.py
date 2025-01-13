@@ -131,6 +131,9 @@ def est_deplacement_piece_valide(jeu, piece, vecteur_deplacement):
 
 
 def deplacement_piece_si_valide(jeu, piece, vecteur_deplacement):
+    """
+    Renvoie True si le deplacement par vecteur_deplacement de la piece est valide
+    """
     if est_deplacement_piece_valide(jeu, piece, vecteur_deplacement):
         deplacer_piece(jeu, piece, vecteur_deplacement)
         return True
@@ -138,6 +141,9 @@ def deplacement_piece_si_valide(jeu, piece, vecteur_deplacement):
 
 
 def rotation_piece_si_valide(jeu, piece, sens):
+    """
+    Renvoie True si la rotation dans le sens sens de la piece est valide
+    """
     if est_rotation_piece_valide(jeu, piece, sens):
         rotation_piece(jeu, piece, sens)
         return True
@@ -145,6 +151,9 @@ def rotation_piece_si_valide(jeu, piece, sens):
 
 
 def est_piece_vide(piece):
+    """
+    Renvoie True si la forme de la pièce ne contient que des 0
+    """
     forme = modeles.forme_piece(piece)
     for ligne in forme:
         if 1 in ligne:
@@ -153,6 +162,9 @@ def est_piece_vide(piece):
 
 
 def nettoyage_pieces_vides(pieces):
+    """
+    Supprime toutes les pièce vides
+    """
     pieces_non_vide = []
     for piece in pieces:
         if not est_piece_vide(piece):

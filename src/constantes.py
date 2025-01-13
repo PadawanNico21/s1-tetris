@@ -86,8 +86,17 @@ CONTROLES_J2_ACCEL = "y"
 
 AJOUT_NIVEAU_TOUTES_NB_PIECES = 20
 
+CONFIGURATION_PAR_DEFAUT = {
+    "fournisseur_polynominos": "integre",
+    "generateur_taille_max": "4",
+    "mode_couleur_adj": "0",
+    "largeur_fenetre": "1000",
+    "hauteur_fenetre": "720",
+}
+
 # Emplacement des fichiers
 
 RACINE = "."
 EMPLACEMENT_FICHIER_SAUVEGARDE = RACINE + "/sauvegardes.json"
 FICHIER_PIECE = RACINE + "/pieces.txt"
+FICHIER_PARAMETRES = RACINE + "/parametres.txt"

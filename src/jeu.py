@@ -87,6 +87,9 @@ def injecter_choisir_piece(formes):
 
 
 def id_piece_meme_couleur(piece, id_piece, pieces):
+    """
+    Renvoie True si la piece piece a la même couleur que la piece ayant pour identifiant id_piece
+    """
     autre_piece = modeles.chercher_piece_par_id(pieces, id_piece)
     return autre_piece != None and modeles.couleur_piece(
         piece
@@ -94,9 +97,12 @@ def id_piece_meme_couleur(piece, id_piece, pieces):
 
 
 def detection_couleur_adjacente(jeu, piece, pieces):
+    """
+    Renvoie un dictionnaire des pièces de même couleur qui touchent la piece 'piece' avec le nombre de côtés touchés
+    """
     x, y = modeles.position_piece(piece)
     forme = modeles.forme_piece(piece)
-    a_fusionner = {}
+    resultat = {}
     for i in range(len(forme)):
         for j in range(len(forme[0])):
             if not forme[i][j]:
@@ -106,25 +112,25 @@ def detection_couleur_adjacente(jeu, piece, pieces):
                 if id_piece_touche != -1 and id_piece_meme_couleur(
                     piece, id_piece_touche, pieces
                 ):
-                    if id_piece_touche not in a_fusionner:
-                        a_fusionner[id_piece_touche] = 0
-                    a_fusionner[id_piece_touche] += 1
+                    if id_piece_touche not in resultat:
+                        resultat[id_piece_touche] = 0
+                    resultat[id_piece_touche] += 1
             if (i >= len(forme) - 1 or not forme[i + 1][j]) and i + y < len(jeu) - 1:
                 id_piece_touche = jeu[y + i + 1][x + j]
                 if id_piece_touche != -1 and id_piece_meme_couleur(
                     piece, id_piece_touche, pieces
                 ):
-                    if id_piece_touche not in a_fusionner:
-                        a_fusionner[id_piece_touche] = 0
-                    a_fusionner[id_piece_touche] += 1
+                    if id_piece_touche not in resultat:
+                        resultat[id_piece_touche] = 0
+                    resultat[id_piece_touche] += 1
             if (j <= 0 or not forme[i][j - 1]) and j + x > 0:
                 id_piece_touche = jeu[y + i][x + j - 1]
                 if id_piece_touche != -1 and id_piece_meme_couleur(
                     piece, id_piece_touche, pieces
                 ):
-                    if id_piece_touche not in a_fusionner:
-                        a_fusionner[id_piece_touche] = 0
-                    a_fusionner[id_piece_touche] += 1
+                    if id_piece_touche not in resultat:
+                        resultat[id_piece_touche] = 0
+                    resultat[id_piece_touche] += 1
             if (j >= len(forme[0]) - 1 or not forme[i][j + 1]) and j + x < len(
                 jeu[0]
             ) - 1:
@@ -132,13 +138,17 @@ def detection_couleur_adjacente(jeu, piece, pieces):
                 if id_piece_touche != -1 and id_piece_meme_couleur(
                     piece, id_piece_touche, pieces
                 ):
-                    if id_piece_touche not in a_fusionner:
-                        a_fusionner[id_piece_touche] = 0
-                    a_fusionner[id_piece_touche] += 1
-    return a_fusionner
+                    if id_piece_touche not in resultat:
+                        resultat[id_piece_touche] = 0
+                    resultat[id_piece_touche] += 1
+    return resultat
 
 
 def fusion_pieces_par_couleur(jeu, pieces, piece_active):
+    """
+    Fusionne et supprime les pieces en fonction de leurs couleurs
+    Logique du mode couleur adjacente
+    """
     suppressions = set()
 
     for p in pieces:
@@ -182,6 +192,9 @@ def fusion_pieces_par_couleur(jeu, pieces, piece_active):
 
 
 def fusionner_piece(piece_a, piece_b):
+    """
+    Créer une nouvelle pièce avec la même couleur et une nouvelle forme fusionnée.
+    """
     forme_a = modeles.forme_piece(piece_a)
     x_a, y_a = modeles.position_piece(piece_a)
     forme_b = modeles.forme_piece(piece_b)

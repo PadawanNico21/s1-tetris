@@ -182,6 +182,9 @@ def arriere_plan():
 
 
 def mode_couleur_adjacente(etat):
+    """
+    Logique du mode couleur adjacente lorsqu'il est actif dans l'etat
+    """
     if modeles.mode_couleur_adjacente_actif(etat):
         suppressions = jeu.fusion_pieces_par_couleur(
             modeles.obtenir_plateau_jeu(etat),
@@ -191,7 +194,7 @@ def mode_couleur_adjacente(etat):
         modeles.ajouter_score_a_partir_de_suppressions_blocks(etat, suppressions)
 
 
-def jeu_solo(formes, etats):
+def jeu_solo(formes, etats, activer_couleur_adj):
     """
     La logique du jeu pour 1 joueur
     """
@@ -201,6 +204,9 @@ def jeu_solo(formes, etats):
     if etats is not None:
         etat = etats[0]
     temps = 0
+
+    if activer_couleur_adj:
+        modeles.activer_mode_couleur_adjacente(etat)
 
     while not est_perdant(etat):
         delais = jeu.calcul_difficulte(modeles.obtenir_difficulte(etat))
@@ -246,7 +252,7 @@ def jeu_solo(formes, etats):
     fltk.attend_clic_gauche()
 
 
-def jeu_duo(formes, etats):
+def jeu_duo(formes, etats, activer_couleur_adj):
     """
     La logique du jeu pour 2 joueurs
     """
@@ -260,6 +266,10 @@ def jeu_duo(formes, etats):
     if etats is not None:
         etat_j1 = etats[0]
         etat_j2 = etats[1]
+
+    if activer_couleur_adj:
+        modeles.activer_mode_couleur_adjacente(etat_j1)
+        modeles.activer_mode_couleur_adjacente(etat_j2)
 
     temps_j1 = 0
     temps_j2 = 0

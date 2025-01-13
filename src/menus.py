@@ -6,6 +6,8 @@ import fltk
 import modeles
 import sauvegarde
 import constantes
+import polynomino_parser
+import polygen
 
 
 def dessiner_bouton(bouton):
@@ -48,15 +50,37 @@ def souris_collision(x, y, bouton):
     return xb - dw <= x <= (xb + dw) and yb - dh <= y <= (yb + dh)
 
 
-def menu_principal(formes, jeu_solo, jeu_duo):
+def charger_formes(configuration):
+    """
+    Renvoie les formes en fonction de la configuration
+    """
+    fournisseur = configuration["fournisseur_polynominos"]
+    if fournisseur == "integre":
+        return constantes.FORMES_BASE
+    if fournisseur == "fichier":
+        return polynomino_parser.forme_init()
+    if fournisseur == "generateur":
+        return polygen.generer_polynominos(int(configuration["generateur_taille_max"]))
+
+
+def menu_principal(jeu_solo, jeu_duo):
     """
     Affiche le menu principal
     """
-    fltk.cree_fenetre(1000, 720, redimension=True)
+    configuration = sauvegarde.charger_fichier_parametres()
+    fltk.cree_fenetre(
+        int(configuration["largeur_fenetre"]),
+        int(configuration["hauteur_fenetre"]),
+        redimension=True,
+    )
+    formes = charger_formes(configuration)
 
     while True:
         largeur = fltk.largeur_fenetre()
         hauteur = fltk.hauteur_fenetre()
+
+        configuration["largeur_fenetre"] = str(largeur)
+        configuration["hauteur_fenetre"] = str(hauteur)
 
         fltk.efface_tout()
         fltk.rectangle(0, 0, largeur, hauteur, "black", "black")
@@ -97,19 +121,25 @@ def menu_principal(formes, jeu_solo, jeu_duo):
             xs = fltk.abscisse(ev)
             ys = fltk.ordonnee(ev)
 
+            activer_couleur_adj = configuration["mode_couleur_adj"] == "1"
+
             if souris_collision(xs, ys, btn_jeu_solo):
-                jeu_solo(formes, None)
+                jeu_solo(formes, None, activer_couleur_adj)
             if souris_collision(xs, ys, btn_jeu_duo):
-                jeu_duo(formes, None)
+                jeu_duo(formes, None, activer_couleur_adj)
             if souris_collision(xs, ys, btn_jeu_solo_save):
-                jeu_solo(formes, sauvegarde.charger("solo"))
+                jeu_solo(formes, sauvegarde.charger("solo"), activer_couleur_adj)
             if souris_collision(xs, ys, btn_jeu_duo_save):
-                jeu_duo(formes, sauvegarde.charger("duo"))
+                jeu_duo(formes, sauvegarde.charger("duo"), activer_couleur_adj)
             if souris_collision(xs, ys, btn_controles):
                 controles()
             if souris_collision(xs, ys, btn_parametres):
-                parametres({})
+                parametres(configuration)
+                sauvegarde.ecrire_fichier_parametres(configuration)
+                formes = charger_formes(configuration)
+                print("Formes disponibles avec cette configuration:", len(formes))
             if souris_collision(xs, ys, btn_quitter):
+                sauvegarde.ecrire_fichier_parametres(configuration)
                 return
 
         dessiner_bouton(btn_jeu_solo)
@@ -124,12 +154,102 @@ def menu_principal(formes, jeu_solo, jeu_duo):
 
 
 def parametres(config):
+    """
+    Affiche le menu des paramètres
+    """
     while True:
         largeur = fltk.largeur_fenetre()
         hauteur = fltk.hauteur_fenetre()
 
         fltk.efface_tout()
         fltk.rectangle(0, 0, largeur, hauteur, "black", "black")
+
+        largeur_mid = largeur / 2
+        hauteur_mid = hauteur / 2
+
+        fltk.texte(largeur_mid, 30, "PARAMETRES", "white", "center")
+
+        btn_fermer = modeles.creer_bouton(
+            largeur_mid, hauteur_mid + 250, 300, 50, "Fermer", "#c0392b", "#fff"
+        )
+
+        fltk.texte(
+            50,
+            100,
+            "Fournisseur de polynominos: " + config["fournisseur_polynominos"],
+            "white",
+            taille=16,
+        )
+
+        btn_fournisseur_integre = modeles.creer_bouton(
+            125, 150, 150, 50, "Intégré", "#2980b9", "#fff"
+        )
+
+        btn_fournisseur_fichier = modeles.creer_bouton(
+            275, 150, 150, 50, "Fichier", "#2980b9", "#fff"
+        )
+
+        btn_fournisseur_generateur = modeles.creer_bouton(
+            450, 150, 200, 50, "Générateur", "#2980b9", "#fff"
+        )
+
+        fltk.texte(
+            50,
+            200,
+            "Taille max générateur: " + (config["generateur_taille_max"]),
+            "white",
+            taille=16,
+        )
+
+        generateur_btns = []
+        for i in range(1, 11):
+            generateur_btns.append(
+                modeles.creer_bouton(
+                    i * 50 + 25, 250, 50, 50, str(i), "#2980b9", "#fff"
+                )
+            )
+
+        texte = "Activer mode couleur adjacente"
+        couleur_btn = "#27ae60"
+        if config["mode_couleur_adj"] != "0":
+            texte = "Desactiver mode couleur adjacente"
+            couleur_btn = "#c0392b"
+
+        btn_toggle_couleur_adj = modeles.creer_bouton(
+            300, 325, 500, 50, texte, couleur_btn, "#fff"
+        )
+
+        ev = fltk.donne_ev()
+        if fltk.type_ev(ev) == "ClicGauche":
+            xs = fltk.abscisse(ev)
+            ys = fltk.ordonnee(ev)
+
+            if souris_collision(xs, ys, btn_fermer):
+                fltk.texte(largeur_mid, hauteur_mid, "Chargement...", "white", "center")
+                fltk.mise_a_jour()
+                return
+            if souris_collision(xs, ys, btn_fournisseur_integre):
+                config["fournisseur_polynominos"] = "integre"
+            if souris_collision(xs, ys, btn_fournisseur_fichier):
+                config["fournisseur_polynominos"] = "fichier"
+            if souris_collision(xs, ys, btn_fournisseur_generateur):
+                config["fournisseur_polynominos"] = "generateur"
+            for btn in generateur_btns:
+                if souris_collision(xs, ys, btn):
+                    config["generateur_taille_max"] = modeles.texte_bouton(btn)
+            if souris_collision(xs, ys, btn_toggle_couleur_adj):
+                val = not int(config["mode_couleur_adj"])
+                config["mode_couleur_adj"] = "0"
+                if val:
+                    config["mode_couleur_adj"] = "1"
+
+        dessiner_bouton(btn_fermer)
+        dessiner_bouton(btn_fournisseur_integre)
+        dessiner_bouton(btn_fournisseur_fichier)
+        dessiner_bouton(btn_fournisseur_generateur)
+        for btn in generateur_btns:
+            dessiner_bouton(btn)
+        dessiner_bouton(btn_toggle_couleur_adj)
 
         fltk.mise_a_jour()
 
@@ -296,14 +416,6 @@ def controles():
 
         btn_ok = modeles.creer_bouton(
             largeur_mid, hauteur - 100, 250, 50, "OK", "#27ae60", "#fff"
-        )
-        fltk.texte(
-            largeur_mid,
-            60,
-            "Les contrôles ne sont pas encore modifiables",
-            "#aaaaaa",
-            "center",
-            taille=14,
         )
 
         dessiner_bouton(btn_ok)
