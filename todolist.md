@@ -1,8 +1,9 @@
 -   [ ] Variante Mode pourrissement
-    -   [ ] Feature flags
-    -   [ ] Feature settings
-    -   [ ] _Systeme modulaire feature ?_
--   [ ] Bonus Élimination par couleurs adjacentes
+    -   [x] Feature flags
+    -   [x] Feature settings
+    -   [x] _Systeme modulaire feature ?_
+-   [x] Bonus Élimination par couleurs adjacentes
 -   [ ] Bonus Sauvegarde des paramètres
 -   [~] Bonus Polyominos de taille ≤ n
+-   [ ] Systeme de paramètre
 -   [ ] Faire le rapport

@@ -85,8 +85,11 @@ def menu_principal(formes, jeu_solo, jeu_duo):
         btn_controles = modeles.creer_bouton(
             largeur_mid, hauteur_mid + 50, 300, 50, "Controles", "#2980b9", "#fff"
         )
+        btn_parametres = modeles.creer_bouton(
+            largeur_mid, hauteur_mid + 150, 300, 50, "Paramètres", "#2980b9", "#fff"
+        )
         btn_quitter = modeles.creer_bouton(
-            largeur_mid, hauteur_mid + 150, 300, 50, "Quitter", "#c0392b", "#fff"
+            largeur_mid, hauteur_mid + 250, 300, 50, "Quitter", "#c0392b", "#fff"
         )
 
         ev = fltk.donne_ev()
@@ -104,6 +107,8 @@ def menu_principal(formes, jeu_solo, jeu_duo):
                 jeu_duo(formes, sauvegarde.charger("duo"))
             if souris_collision(xs, ys, btn_controles):
                 controles()
+            if souris_collision(xs, ys, btn_parametres):
+                parametres({})
             if souris_collision(xs, ys, btn_quitter):
                 return
 
@@ -112,7 +117,19 @@ def menu_principal(formes, jeu_solo, jeu_duo):
         dessiner_bouton(btn_jeu_duo)
         dessiner_bouton(btn_jeu_duo_save)
         dessiner_bouton(btn_controles)
+        dessiner_bouton(btn_parametres)
         dessiner_bouton(btn_quitter)
+
+        fltk.mise_a_jour()
+
+
+def parametres(config):
+    while True:
+        largeur = fltk.largeur_fenetre()
+        hauteur = fltk.hauteur_fenetre()
+
+        fltk.efface_tout()
+        fltk.rectangle(0, 0, largeur, hauteur, "black", "black")
 
         fltk.mise_a_jour()
 
